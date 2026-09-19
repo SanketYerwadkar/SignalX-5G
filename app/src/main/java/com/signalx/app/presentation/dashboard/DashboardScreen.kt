@@ -22,8 +22,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.app.Activity
 import android.content.Intent
 import android.provider.Settings
+import com.signalx.app.ads.AdManager
 import com.signalx.app.domain.model.*
 import com.signalx.app.service.AutomationEvents
 import com.signalx.app.service.SignalXAccessibilityService
@@ -52,7 +54,10 @@ fun DashboardScreen(
 
     LaunchedEffect(Unit) {
         AutomationEvents.events.collect { message: String ->
-            successDialogMessage = message
+            val activity = context as? Activity
+            AdManager.showInterstitial(activity) {
+                successDialogMessage = message
+            }
         }
     }
 

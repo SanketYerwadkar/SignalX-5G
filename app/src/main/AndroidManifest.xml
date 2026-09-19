@@ -9,6 +9,9 @@
       Nothing else. No location is ever logged or transmitted.
     -->
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <!-- Queries for explicit intents (RadioInfo / Phone Info, Settings, Dialer) -->
     <queries>
         <package android:name="com.android.settings" />
@@ -31,6 +34,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.SignalX">
+
+        <!-- Google AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-4816922336363568~3661419075" />
 
         <activity
             android:name=".MainActivity"
