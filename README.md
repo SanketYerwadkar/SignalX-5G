@@ -1,6 +1,20 @@
-# SignalX⁵ᴳ — 5G Network Dashboard & Auto-Configurator
+<p align="center">
+  <img src="assets/logo.svg" width="130" height="130" alt="SignalX Logo" />
+</p>
 
-SignalX⁵ᴳ is an advanced Android cellular radio dashboard and automated 5G network manager designed for real-time cellular telemetry and effortless 5G (NR Only) lock on **non-rooted** Android devices.
+<h1 align="center">SignalX⁵ᴳ</h1>
+
+<p align="center">
+  <b>Modern Android 5G Network Dashboard & 1-Tap Auto-5G (NR Only) Lock for Non-Rooted Devices</b>
+</p>
+
+<p align="center">
+  <a href="#-key-features"><img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Platform" /></a>
+  <a href="#-architecture--tech-stack"><img src="https://img.shields.io/badge/Kotlin-2.0-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin" /></a>
+  <a href="#-architecture--tech-stack"><img src="https://img.shields.io/badge/Jetpack_Compose-Material_3-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Compose" /></a>
+  <a href="#-how-it-works-without-root"><img src="https://img.shields.io/badge/5G_Lock-NR_Only-00F5D4?style=for-the-badge" alt="5G NR Only" /></a>
+  <a href="#-how-it-works-without-root"><img src="https://img.shields.io/badge/Root_Required-NO-00C853?style=for-the-badge" alt="No Root Required" /></a>
+</p>
 
 ---
 
@@ -8,7 +22,7 @@ SignalX⁵ᴳ is an advanced Android cellular radio dashboard and automated 5G n
 
 - **⚡ 1-Tap Auto-5G (No Root Required)**:
   - Automatically launches the hidden Android `RadioInfo` (`*#*#4636#*#*`) testing screen.
-  - Selects **Phone 0** (primary SIM).
+  - Automatically handles **Phone 0** selection.
   - Automatically selects **"NR only"** from the preferred network type dropdown to force pure 5G Standalone (SA).
   - Triggers SMSC update & refresh.
   - Smoothly scrolls all the way back to the top to display the configured settings.
@@ -71,4 +85,4 @@ SignalX⁵ᴳ solves this gracefully for standard consumer devices:
 
 ## 📜 License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
