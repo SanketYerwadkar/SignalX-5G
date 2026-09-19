@@ -1,0 +1,9 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Splash is drawn by Compose; this theme only prevents a white launch flash. -->
+    <style name="Theme.SignalX" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/sx_background</item>
+        <item name="android:statusBarColor">@color/sx_background</item>
+        <item name="android:navigationBarColor">@color/sx_background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+    </style>
+</resources>

@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">SignalX⁵ᴳ</string>
+    <string name="tagline">Network Control &amp; Diagnostics</string>
+    <string name="five_g_sheet_title">5G Network Settings</string>
+    <string name="five_g_sheet_body">Android controls preferred network modes through system settings. Open your device\'s network settings to configure 5G/NR.</string>
+    <string name="open_network_settings">Open Network Settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="perm_rationale">Network information permission is required to display detailed cellular information.</string>
+    <string name="no_sim_title">No SIM detected</string>
+    <string name="no_sim_body">Insert a SIM card to view cellular network information.</string>
+    <string name="no_service_title">No Cellular Connection</string>
+    <string name="not_available">Not available on this device</string>
+    <string name="accessibility_service_description">Automatically selects 5G NR Only and refreshes SMSC in Phone Info without root.</string>
+</resources>
