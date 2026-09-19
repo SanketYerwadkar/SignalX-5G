@@ -52,11 +52,40 @@ fun DashboardScreen(
     var showAccessibilityPrompt by rememberSaveable { mutableStateOf(false) }
     var successDialogMessage by rememberSaveable { mutableStateOf<String?>(null) }
 
+    var pendingSuccessMessage by remember { mutableStateOf<String?>(null) }
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                pendingSuccessMessage?.let { msg ->
+                    pendingSuccessMessage = null
+                    val activity = context as? Activity
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        AdManager.showInterstitial(activity) {
+                            successDialogMessage = msg
+                        }
+                    }, 500)
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
     LaunchedEffect(Unit) {
         AutomationEvents.events.collect { message: String ->
-            val activity = context as? Activity
-            AdManager.showInterstitial(activity) {
-                successDialogMessage = message
+            if (lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                val activity = context as? Activity
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    AdManager.showInterstitial(activity) {
+                        successDialogMessage = message
+                    }
+                }, 400)
+            } else {
+                pendingSuccessMessage = message
             }
         }
     }

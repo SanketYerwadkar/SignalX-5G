@@ -29,6 +29,12 @@ object AdManager {
 
     fun initialize(context: Context) {
         try {
+            val testDeviceIds = listOf("97394E04EC9D8A27735566CE94353A8C")
+            val configuration = com.google.android.gms.ads.RequestConfiguration.Builder()
+                .setTestDeviceIds(testDeviceIds)
+                .build()
+            MobileAds.setRequestConfiguration(configuration)
+
             MobileAds.initialize(context) { initializationStatus ->
                 Log.d(TAG, "Google Mobile Ads initialized: $initializationStatus")
                 loadInterstitial(context)
