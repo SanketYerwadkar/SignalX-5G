@@ -152,13 +152,21 @@ fun DashboardScreen(
             onDismissRequest = { showAccessibilityPrompt = false },
             title = { Text("Enable Auto-5G (No Root)") },
             text = {
-                Text(
-                    "To automatically select 'NR only' and refresh SMSC without touching anything, enable SignalX in Accessibility Settings:\n\n" +
-                        "1. Tap 'Enable Auto-5G' below\n" +
-                        "2. Tap 'SignalX⁵ᴳ' in the list\n" +
-                        "3. Turn the switch ON\n\n" +
-                        "Or tap 'Open Manually' to select NR only yourself in Phone Info."
-                )
+                Column {
+                    Text(
+                        "To automatically select 'NR only' and refresh SMSC without touching anything, enable SignalX in Accessibility Settings.\n",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        "🔒 If Android says 'Restricted setting':\n" +
+                            "1. Tap 'Unlock Restricted Setting' below\n" +
+                            "2. Tap the 3 dots (⋮) in the top-right corner\n" +
+                            "3. Tap 'Allow restricted settings'\n" +
+                            "4. Enter your PIN/Fingerprint, then turn ON Accessibility!",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SxColor.Cyan
+                    )
+                }
             },
             confirmButton = {
                 Button(onClick = {
@@ -171,15 +179,22 @@ fun DashboardScreen(
                         SettingsIntents.openRadioInfo(context)
                     }
                 }) {
-                    Text("Enable Auto-5G")
+                    Text("1. Open Accessibility")
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
-                    showAccessibilityPrompt = false
-                    if (!SettingsIntents.openRadioInfo(context)) settingsUnavailable = true
-                }) {
-                    Text("Open Manually")
+                Row {
+                    TextButton(onClick = {
+                        SettingsIntents.open(context, SettingsIntents.Target.APP_DETAILS)
+                    }) {
+                        Text("2. Unlock (3 dots ⋮)")
+                    }
+                    TextButton(onClick = {
+                        showAccessibilityPrompt = false
+                        if (!SettingsIntents.openRadioInfo(context)) settingsUnavailable = true
+                    }) {
+                        Text("Open Manually")
+                    }
                 }
             }
         )
