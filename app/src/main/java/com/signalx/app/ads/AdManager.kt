@@ -15,26 +15,16 @@ import com.signalx.app.BuildConfig
 object AdManager {
     private const val TAG = "SignalXAds"
 
-    // Production Interstitial Ad Unit ID:
+    // Real Live Production Interstitial Ad Unit ID:
     private const val PROD_INTERSTITIAL_ID = "ca-app-pub-4816922336363568/3589653926"
 
-    // Official Google Test Interstitial ID (Used in Debug builds to safely test ads without policy violations):
-    private const val TEST_INTERSTITIAL_ID = "ca-app-pub-3940256099942544/1033173712"
-
-    private val adUnitId: String
-        get() = if (BuildConfig.DEBUG) TEST_INTERSTITIAL_ID else PROD_INTERSTITIAL_ID
+    private val adUnitId: String = PROD_INTERSTITIAL_ID
 
     private var interstitialAd: InterstitialAd? = null
     private var isLoading = false
 
     fun initialize(context: Context) {
         try {
-            val testDeviceIds = listOf("97394E04EC9D8A27735566CE94353A8C")
-            val configuration = com.google.android.gms.ads.RequestConfiguration.Builder()
-                .setTestDeviceIds(testDeviceIds)
-                .build()
-            MobileAds.setRequestConfiguration(configuration)
-
             MobileAds.initialize(context) { initializationStatus ->
                 Log.d(TAG, "Google Mobile Ads initialized: $initializationStatus")
                 loadInterstitial(context)
