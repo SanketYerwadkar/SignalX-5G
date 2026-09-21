@@ -33,12 +33,13 @@ object SettingsIntents {
      */
     fun openRadioInfo(context: Context): Boolean {
         val radioIntents = listOf(
-            // 1. Standard AOSP / Pixel / OnePlus / Motorola RadioInfo
-            Intent().setComponent(ComponentName("com.android.settings", "com.android.settings.RadioInfo")),
-            Intent(Intent.ACTION_MAIN).setComponent(ComponentName("com.android.settings", "com.android.settings.RadioInfo")),
-            // 2. Phone / Telephony settings RadioInfo
+            // 1. Phone / Telephony settings RadioInfo (OnePlus, Oppo, Realme, modern AOSP)
             Intent().setComponent(ComponentName("com.android.phone", "com.android.phone.settings.RadioInfo")),
             Intent(Intent.ACTION_MAIN).setComponent(ComponentName("com.android.phone", "com.android.phone.settings.RadioInfo")),
+            Intent().setComponent(ComponentName("com.android.phone", "com.android.phone.RadioInfo")),
+            // 2. Settings RadioInfo (Pixel, AOSP, Motorola)
+            Intent().setComponent(ComponentName("com.android.settings", "com.android.settings.RadioInfo")),
+            Intent(Intent.ACTION_MAIN).setComponent(ComponentName("com.android.settings", "com.android.settings.RadioInfo")),
             // 3. Testing Settings activity (which contains "Phone information" as the top item)
             Intent().setComponent(ComponentName("com.android.settings", "com.android.settings.TestingSettings")),
             Intent(Intent.ACTION_MAIN).setComponent(ComponentName("com.android.settings", "com.android.settings.TestingSettings")),

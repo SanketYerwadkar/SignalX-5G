@@ -116,6 +116,7 @@ fun HomeScreen(
     state: NetworkUiState,
     onRefresh: () -> Unit,
     onSetTo5G: () -> Unit,
+    onSetTo4G: () -> Unit,
     onOpen5GSettings: () -> Unit,
     onOpenSimSettings: () -> Unit,
     onOpenNetworkInfo: () -> Unit,
@@ -138,6 +139,9 @@ fun HomeScreen(
         Spacer(Modifier.height(16.dp))
 
         SetTo5GButton(onSetTo5G)
+        Spacer(Modifier.height(12.dp))
+
+        SetTo4GButton(onSetTo4G)
         Spacer(Modifier.height(28.dp))
 
         SectionTitle("Network details")
@@ -426,6 +430,40 @@ private fun SetTo5GButton(onClick: () -> Unit) {
     }
 }
 
+@Composable
+private fun SetTo4GButton(onClick: () -> Unit) {
+    val shape = RoundedCornerShape(26.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(SignalX.colors.surface)
+            .border(1.dp, SignalX.colors.outline, shape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            Modifier
+                .size(48.dp)
+                .background(SignalX.colors.accent.copy(alpha = 0.15f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("4G", color = SignalX.colors.accent, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f)) {
+            Text("Set network to 4G", color = SignalX.colors.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                "Opens your phone's mobile settings",
+                color = SignalX.colors.textMuted,
+                fontSize = 13.sp
+            )
+        }
+        Icon(Icons.Rounded.KeyboardArrowRight, contentDescription = null, tint = SignalX.colors.textMuted)
+    }
+}
+
 // ---------- sections ----------
 
 @Composable
@@ -498,11 +536,11 @@ private fun ActionTile(
 @Preview(name = "Dark", showBackground = true, backgroundColor = 0xFF05070A, heightDp = 900)
 @Composable
 private fun HomeDarkPreview() = SignalXTheme(ThemeMode.Dark) {
-    HomeScreen(NetworkUiState(), {}, {}, {}, {}, {}, {})
+    HomeScreen(NetworkUiState(), {}, {}, {}, {}, {}, {}, {})
 }
 
 @Preview(name = "Light", showBackground = true, backgroundColor = 0xFFF3F6FB, heightDp = 900)
 @Composable
 private fun HomeLightPreview() = SignalXTheme(ThemeMode.Light) {
-    HomeScreen(NetworkUiState(), {}, {}, {}, {}, {}, {})
+    HomeScreen(NetworkUiState(), {}, {}, {}, {}, {}, {}, {})
 }

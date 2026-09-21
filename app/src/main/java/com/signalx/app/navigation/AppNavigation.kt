@@ -1,6 +1,11 @@
 package com.signalx.app.navigation
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
@@ -108,11 +113,11 @@ fun AppNavigation(vm: MainViewModel, versionName: String) {
                         if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                             pendingSuccessMessage?.let { msg ->
                                 pendingSuccessMessage = null
-                                val activity = context as? android.app.Activity
+                                // val activity = context as? android.app.Activity
                                 android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                                    com.signalx.app.ads.AdManager.showInterstitial(activity) {
+                                    // com.signalx.app.ads.AdManager.showInterstitial(activity) {
                                         successDialogMessage = msg
-                                    }
+                                    // }
                                 }, 500)
                             }
                         }
@@ -124,11 +129,11 @@ fun AppNavigation(vm: MainViewModel, versionName: String) {
                 androidx.compose.runtime.LaunchedEffect(Unit) {
                     com.signalx.app.service.AutomationEvents.events.collect { message: String ->
                         if (lifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
-                            val activity = context as? android.app.Activity
+                            // val activity = context as? android.app.Activity
                             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                                com.signalx.app.ads.AdManager.showInterstitial(activity) {
+                                // com.signalx.app.ads.AdManager.showInterstitial(activity) {
                                     successDialogMessage = message
-                                }
+                                // }
                             }, 400)
                         } else {
                             pendingSuccessMessage = message
@@ -156,6 +161,16 @@ fun AppNavigation(vm: MainViewModel, versionName: String) {
                             showAccessibilityPrompt = true
                         }
                     },
+                    onSetTo4G = {
+                        if (com.signalx.app.service.SignalXAccessibilityService.isServiceEnabled(context)) {
+                            com.signalx.app.service.SignalXAccessibilityService.startAutoConfigure4G()
+                            if (!SettingsIntents.open(context, SettingsIntents.Target.PREFERRED_NETWORK)) {
+                                settingsUnavailable = true
+                            }
+                        } else {
+                            showAccessibilityPrompt = true
+                        }
+                    },
                     onOpen5GSettings = {
                         if (!SettingsIntents.openRadioInfo(context)) settingsUnavailable = true
                     },
@@ -173,48 +188,88 @@ fun AppNavigation(vm: MainViewModel, versionName: String) {
                         onDismissRequest = { showAccessibilityPrompt = false },
                         title = { Text("Enable Auto-5G (No Root)") },
                         text = {
-                            androidx.compose.foundation.layout.Column {
+                            androidx.compose.foundation.layout.Column(
+                                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp)
+                            ) {
                                 Text(
-                                    "To automatically select 'NR only' and refresh SMSC without touching anything, enable SignalX in Accessibility Settings.\n",
+                                    "To automatically set 'NR only' on Phone 0 and refresh/update SMSC, enable SignalX in Accessibility.",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
-                                Text(
-                                    "🔒 If Android says 'Restricted setting':\n" +
-                                        "1. Tap 'Unlock Restricted Setting' below\n" +
-                                        "2. Tap the 3 dots (⋮) in the top-right corner\n" +
-                                        "3. Tap 'Allow restricted settings'\n" +
-                                        "4. Enter your PIN/Fingerprint, then turn ON Accessibility!",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = com.signalx.app.ui.theme.SignalX.colors.accent
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(com.signalx.app.ui.theme.SignalX.colors.surface)
+                                        .border(
+                                            1.dp,
+                                            com.signalx.app.ui.theme.SignalX.colors.outline,
+                                            RoundedCornerShape(12.dp)
+                                        )
+                                        .padding(12.dp)
+                                ) {
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Text(
+                                            "🔒 If blocked by 'Restricted setting':",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = com.signalx.app.ui.theme.SignalX.colors.accent
+                                        )
+                                        Text(
+                                            "1. Tap '1. Unlock in App Info' below\n" +
+                                                "2. Tap the 3 dots (⋮) in top-right corner\n" +
+                                                "3. Tap 'Allow restricted settings' & enter PIN\n" +
+                                                "4. Tap '2. Turn ON in Accessibility'",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = com.signalx.app.ui.theme.SignalX.colors.textPrimary
+                                        )
+                                    }
+                                }
                             }
                         },
                         confirmButton = {
-                            Button(onClick = {
-                                showAccessibilityPrompt = false
-                                try {
-                                    context.startActivity(
-                                        android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    )
-                                } catch (e: Exception) {
-                                    SettingsIntents.openRadioInfo(context)
+                            androidx.compose.foundation.layout.Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = {
+                                        SettingsIntents.open(context, SettingsIntents.Target.APP_DETAILS)
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("1. Unlock in App Info (3 dots ⋮)")
                                 }
-                            }) {
-                                Text("1. Open Accessibility")
-                            }
-                        },
-                        dismissButton = {
-                            androidx.compose.foundation.layout.Row {
-                                TextButton(onClick = {
-                                    SettingsIntents.open(context, SettingsIntents.Target.APP_DETAILS)
-                                }) {
-                                    Text("2. Unlock (3 dots ⋮)")
+                                FilledTonalButton(
+                                    onClick = {
+                                        showAccessibilityPrompt = false
+                                        try {
+                                            context.startActivity(
+                                                android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            )
+                                        } catch (e: Exception) {
+                                            SettingsIntents.openRadioInfo(context)
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("2. Turn ON in Accessibility")
                                 }
-                                TextButton(onClick = {
-                                    showAccessibilityPrompt = false
-                                    if (!SettingsIntents.openRadioInfo(context)) settingsUnavailable = true
-                                }) {
-                                    Text("Open Manually")
+                                androidx.compose.foundation.layout.Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+                                ) {
+                                    TextButton(onClick = {
+                                        showAccessibilityPrompt = false
+                                        if (!SettingsIntents.openRadioInfo(context)) settingsUnavailable = true
+                                    }) {
+                                        Text("Open Manually")
+                                    }
+                                    TextButton(onClick = { showAccessibilityPrompt = false }) {
+                                        Text("Dismiss")
+                                    }
                                 }
                             }
                         }

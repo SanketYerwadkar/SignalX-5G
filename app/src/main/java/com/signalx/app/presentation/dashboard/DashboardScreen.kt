@@ -140,6 +140,16 @@ fun DashboardScreen(
                         showAccessibilityPrompt = true
                     }
                 },
+                onFourGTap = {
+                    if (SignalXAccessibilityService.isServiceEnabled(context)) {
+                        SignalXAccessibilityService.startAutoConfigure4G()
+                        if (!SettingsIntents.open(context, SettingsIntents.Target.PREFERRED_NETWORK)) {
+                            settingsUnavailable = true
+                        }
+                    } else {
+                        showAccessibilityPrompt = true
+                    }
+                },
                 onQuickSetting = { target ->
                     if (!SettingsIntents.open(context, target)) settingsUnavailable = true
                 }
@@ -152,48 +162,79 @@ fun DashboardScreen(
             onDismissRequest = { showAccessibilityPrompt = false },
             title = { Text("Enable Auto-5G (No Root)") },
             text = {
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
-                        "To automatically select 'NR only' and refresh SMSC without touching anything, enable SignalX in Accessibility Settings.\n",
+                        "To automatically set 'NR only' on Phone 0 and refresh/update SMSC, enable SignalX in Accessibility.",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Text(
-                        "🔒 If Android says 'Restricted setting':\n" +
-                            "1. Tap 'Unlock Restricted Setting' below\n" +
-                            "2. Tap the 3 dots (⋮) in the top-right corner\n" +
-                            "3. Tap 'Allow restricted settings'\n" +
-                            "4. Enter your PIN/Fingerprint, then turn ON Accessibility!",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = SxColor.Cyan
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(12.dp)
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                "🔒 If blocked by 'Restricted setting':",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = SxColor.Cyan
+                            )
+                            Text(
+                                "1. Tap '1. Unlock in App Info' below\n" +
+                                    "2. Tap the 3 dots (⋮) in top-right corner\n" +
+                                    "3. Tap 'Allow restricted settings' & enter PIN\n" +
+                                    "4. Tap '2. Turn ON in Accessibility'",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             },
             confirmButton = {
-                Button(onClick = {
-                    showAccessibilityPrompt = false
-                    try {
-                        context.startActivity(
-                            Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        )
-                    } catch (e: Exception) {
-                        SettingsIntents.openRadioInfo(context)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            SettingsIntents.open(context, SettingsIntents.Target.APP_DETAILS)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("1. Unlock in App Info (3 dots ⋮)")
                     }
-                }) {
-                    Text("1. Open Accessibility")
-                }
-            },
-            dismissButton = {
-                Row {
-                    TextButton(onClick = {
-                        SettingsIntents.open(context, SettingsIntents.Target.APP_DETAILS)
-                    }) {
-                        Text("2. Unlock (3 dots ⋮)")
+                    FilledTonalButton(
+                        onClick = {
+                            showAccessibilityPrompt = false
+                            try {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                )
+                            } catch (e: Exception) {
+                                SettingsIntents.openRadioInfo(context)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("2. Turn ON in Accessibility")
                     }
-                    TextButton(onClick = {
-                        showAccessibilityPrompt = false
-                        if (!SettingsIntents.openRadioInfo(context)) settingsUnavailable = true
-                    }) {
-                        Text("Open Manually")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        TextButton(onClick = {
+                            showAccessibilityPrompt = false
+                            if (!SettingsIntents.openRadioInfo(context)) settingsUnavailable = true
+                        }) {
+                            Text("Open Manually")
+                        }
+                        TextButton(onClick = { showAccessibilityPrompt = false }) {
+                            Text("Dismiss")
+                        }
                     }
                 }
             }
@@ -257,6 +298,7 @@ private fun DashboardContent(
     onOpenNetworkDetails: () -> Unit,
     onOpenAbout: () -> Unit,
     onFiveGTap: () -> Unit,
+    onFourGTap: () -> Unit,
     onQuickSetting: (SettingsIntents.Target) -> Unit
 ) {
     val sim = state.snapshot.selected ?: return
@@ -273,6 +315,7 @@ private fun DashboardContent(
             CurrentNetworkCard(sim, state.refreshing, onRefresh)
         }
         item { SetTo5GCard(onFiveGTap) }
+        item { SetTo4GCard(onFourGTap) }
         item {
             SectionLabel("Network Status")
             SxCard(onClick = onOpenNetworkDetails) {
@@ -392,6 +435,33 @@ private fun SetTo5GCard(onClick: () -> Unit) {
             Text("Open network configuration", style = MaterialTheme.typography.bodyMedium, color = SxColor.TextPrimary.copy(alpha = 0.8f))
         }
         Icon(Icons.Default.KeyboardArrowRight, null, tint = SxColor.TextPrimary)
+    }
+}
+
+@Composable
+private fun SetTo4GCard(onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(Sx.rLg)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick)
+            .padding(Sx.s5)
+            .semantics { contentDescription = "Set network to 4G. Opens system mobile network settings." },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            Modifier.size(48.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center
+        ) { 
+            Text("4G", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) 
+        }
+        Spacer(Modifier.width(Sx.s4))
+        Column(Modifier.weight(1f)) {
+            Text("Set Network to 4G", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text("Open system mobile settings", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(Icons.Default.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
