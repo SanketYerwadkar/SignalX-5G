@@ -14,6 +14,7 @@ import com.signalx.app.ui.components.BrandTagline
 import com.signalx.app.ui.components.SignalXLogo
 import com.signalx.app.ui.components.SxCard
 import com.signalx.app.ui.theme.Sx
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,8 +35,10 @@ fun AboutScreen(versionName: String, onBack: () -> Unit, onPrivacy: () -> Unit, 
             Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(Sx.s6),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(Sx.s8))
-            SignalXLogo(fontSize = 36)
+            Spacer(Modifier.height(Sx.s6))
+            com.signalx.app.ui.components.SignalXAppIcon(size = 80.dp)
+            Spacer(Modifier.height(Sx.s3))
+            SignalXLogo(fontSize = 32)
             Spacer(Modifier.height(Sx.s3))
             BrandTagline()
             Spacer(Modifier.height(Sx.s2))

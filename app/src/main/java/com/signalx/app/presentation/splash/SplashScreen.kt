@@ -54,8 +54,15 @@ fun SplashScreen(onFinished: () -> Unit) {
             }
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            SignalXLogo(Modifier.alpha(alpha).scale(scale), fontSize = 40)
+            com.signalx.app.ui.components.SignalXAppIcon(
+                modifier = Modifier
+                    .alpha(alpha)
+                    .scale(scale),
+                size = 96.dp
+            )
             Spacer(Modifier.height(Sx.s4))
+            SignalXLogo(Modifier.alpha(alpha).scale(scale), fontSize = 36)
+            Spacer(Modifier.height(Sx.s3))
             BrandTagline(Modifier.alpha(alpha))
         }
     }

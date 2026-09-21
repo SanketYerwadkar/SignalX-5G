@@ -20,6 +20,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.signalx.app.R
 import com.signalx.app.ui.theme.SxColor
 
 /**
@@ -96,22 +99,24 @@ private fun Modifier.brandGradient(): Modifier = this.drawWithCache {
 /** Compact mark used by the top app bar and small surfaces. */
 @Composable
 fun SignalXMark(modifier: Modifier = Modifier, size: Int = 28) {
-    Box(modifier.size(size.dp), contentAlignment = Alignment.Center) {
-        Text(
-            "X",
-            style = TextStyle(fontSize = (size * 0.8f).sp, fontWeight = FontWeight.Black),
-            modifier = Modifier.brandGradient()
-        )
-        Box(
-            Modifier
-                .align(Alignment.TopEnd)
-                .size((size * 0.46f).dp)
-                .background(SxColor.AccentGradient, androidx.compose.foundation.shape.CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("5G", fontSize = (size * 0.19f).sp, color = SxColor.Background, fontWeight = FontWeight.Bold)
-        }
-    }
+    Image(
+        painter = painterResource(id = R.drawable.ic_mark_light),
+        contentDescription = "SignalX 5G Mark",
+        modifier = modifier.size(size.dp)
+    )
+}
+
+/** Full brand app icon featuring the light/dark logo. */
+@Composable
+fun SignalXAppIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 72.dp
+) {
+    Image(
+        painter = painterResource(id = R.drawable.ic_logo),
+        contentDescription = "SignalX 5G Logo",
+        modifier = modifier.size(size)
+    )
 }
 
 @Composable
