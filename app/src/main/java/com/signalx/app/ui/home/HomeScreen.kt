@@ -59,7 +59,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.signalx.app.domain.model.ConnectionType
@@ -531,16 +530,4 @@ private fun ActionTile(
     }
 }
 
-// ---------- previews: check both themes in Android Studio ----------
-
-@Preview(name = "Dark", showBackground = true, backgroundColor = 0xFF05070A, heightDp = 900)
-@Composable
-private fun HomeDarkPreview() = SignalXTheme(ThemeMode.Dark) {
-    HomeScreen(NetworkUiState(), {}, {}, {}, {}, {}, {}, {})
-}
-
-@Preview(name = "Light", showBackground = true, backgroundColor = 0xFFF3F6FB, heightDp = 900)
-@Composable
-private fun HomeLightPreview() = SignalXTheme(ThemeMode.Light) {
-    HomeScreen(NetworkUiState(), {}, {}, {}, {}, {}, {}, {})
-}
+// ---------- previews removed for release build ----------
