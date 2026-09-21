@@ -15,8 +15,8 @@ android {
         // CellSignalStrengthNr) arrive at 29/30 and are guarded at the call site in Phase 2.
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.1.1"
     }
 
     buildTypes {
