@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" width="130" height="130" alt="SignalX Logo" />
+  <img src="assets/logo-light.svg" width="130" height="130" alt="SignalX Logo" />
 </p>
 
 <h1 align="center">SignalX⁵ᴳ</h1>
