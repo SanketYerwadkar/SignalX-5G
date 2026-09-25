@@ -519,22 +519,36 @@ class SignalXAccessibilityService : AccessibilityService() {
     }
 
     private fun handleFindPreferredNetwork(roots: List<AccessibilityNodeInfo>) {
+        // Already in the popup — select immediately
+        if (is4GPopupOpen(roots)) {
+            currentStep4G = Step4G.SELECT_4G_OPTION
+            handleSelect4GOption(roots)
+            return
+        }
+
         // Look for the "Preferred network type" option in settings
         for (activeRoot in roots) {
             val matches = activeRoot.findAccessibilityNodeInfosByText("Preferred network type")
                 .ifEmpty { activeRoot.findAccessibilityNodeInfosByText("Network mode") }
-            
+                .ifEmpty { activeRoot.findAccessibilityNodeInfosByText("Preferred Network Type") }
+                .ifEmpty { activeRoot.findAccessibilityNodeInfosByText("Network type") }
+
             for (node in matches) {
                 clickNode(node)
                 currentStep4G = Step4G.SELECT_4G_OPTION
+                // Retry via postDelayed in case the dialog opens without firing a new event
+                mainHandler.postDelayed({
+                    if (currentStep4G == Step4G.SELECT_4G_OPTION && isAutomating) {
+                        rootInActiveWindow?.let { handleSelect4GOption(getAllCandidateRoots(it)) }
+                    }
+                }, 600)
+                mainHandler.postDelayed({
+                    if (currentStep4G == Step4G.SELECT_4G_OPTION && isAutomating) {
+                        rootInActiveWindow?.let { handleSelect4GOption(getAllCandidateRoots(it)) }
+                    }
+                }, 1200)
                 return
             }
-        }
-        
-        // Also check if we are ALREADY in the popup (by looking for 4G/LTE text)
-        if (is4GPopupOpen(roots)) {
-            currentStep4G = Step4G.SELECT_4G_OPTION
-            handleSelect4GOption(roots)
         }
     }
 
@@ -556,31 +570,41 @@ class SignalXAccessibilityService : AccessibilityService() {
     }
 
     private fun handleSelect4GOption(roots: List<AccessibilityNodeInfo>) {
+        // Collect all candidate nodes first, then pick the best match
+        data class Candidate(val node: AccessibilityNodeInfo, val score: Int)
+        val candidates = mutableListOf<Candidate>()
+
         for (activeRoot in roots) {
             val allNodes = mutableListOf<AccessibilityNodeInfo>()
             findAllNodesWithText(activeRoot, allNodes)
-            
+
             for (node in allNodes) {
                 val text = getAllText(node)
-                // We want an option with 4G/LTE, but definitely NOT 5G or NR
-                if ((text.contains("4G", ignoreCase = true) || text.contains("LTE", ignoreCase = true)) &&
-                    !text.contains("5G", ignoreCase = true) && !text.contains("NR", ignoreCase = true)) {
-                    
-                    val isNetworkOption = node.isCheckable || 
-                        node.className?.contains("RadioButton", ignoreCase = true) == true ||
-                        node.className?.contains("CheckedTextView", ignoreCase = true) == true ||
-                        text.contains("3G", ignoreCase = true) || 
-                        text.contains("2G", ignoreCase = true) ||
-                        text.contains("auto", ignoreCase = true)
+                // Must have 4G/LTE but NOT 5G or NR
+                if (!(text.contains("4G", ignoreCase = true) || text.contains("LTE", ignoreCase = true))) continue
+                if (text.contains("5G", ignoreCase = true) || text.contains("NR", ignoreCase = true)) continue
 
-                    if (isNetworkOption) {
-                        clickNode(node)
-                        finishAutomation4G()
-                        return
-                    }
-                }
+                val isNetworkOption = node.isCheckable ||
+                    node.className?.contains("RadioButton", ignoreCase = true) == true ||
+                    node.className?.contains("CheckedTextView", ignoreCase = true) == true ||
+                    text.contains("3G", ignoreCase = true) ||
+                    text.contains("2G", ignoreCase = true) ||
+                    text.contains("auto", ignoreCase = true)
+                if (!isNetworkOption) continue
+
+                // Score: prefer options that include "auto" and also have 3G/2G (widest 4G auto)
+                var score = 0
+                if (text.contains("auto", ignoreCase = true)) score += 10
+                if (text.contains("3G", ignoreCase = true)) score += 3
+                if (text.contains("2G", ignoreCase = true)) score += 2
+                if (node.isCheckable) score += 5
+                candidates.add(Candidate(node, score))
             }
         }
+
+        val best = candidates.maxByOrNull { it.score } ?: return
+        clickNode(best.node)
+        finishAutomation4G()
     }
 
     private fun findAllNodesWithText(node: AccessibilityNodeInfo, result: MutableList<AccessibilityNodeInfo>) {
