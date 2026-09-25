@@ -22,10 +22,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import com.signalx.app.ui.theme.ThemeMode
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -53,10 +55,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val Bg = Color(0xFF05070A)
 private val Cyan = Color(0xFF22D3EE)
 private val RingBlue = Color(0xFF22D3EE)
-private val Muted = Color(0xFF8A94A6)
 
 /**
  * Animated launch screen.
@@ -69,10 +69,19 @@ private val Muted = Color(0xFF8A94A6)
  *   2.5s  everything fades out and [onFinished] is called
  */
 @Composable
-fun SplashScreen(onFinished: () -> Unit) = SignalXSplash(onFinished = onFinished)
+fun SplashScreen(themeMode: ThemeMode = ThemeMode.DARK, onFinished: () -> Unit) =
+    SignalXSplash(themeMode = themeMode, onFinished = onFinished)
 
 @Composable
-fun SignalXSplash(onFinished: () -> Unit) {
+fun SignalXSplash(themeMode: ThemeMode = ThemeMode.DARK, onFinished: () -> Unit) {
+    val isDark = when (themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.DARK   -> true
+        ThemeMode.LIGHT  -> false
+    }
+    val Bg    = if (isDark) Color(0xFF05070A) else Color(0xFFF0F5FF)
+    val Muted = if (isDark) Color(0xFF8A94A6) else Color(0xFF64748B)
+    val titleBase = if (isDark) Color.White else Color(0xFF0F172A)
     val glow = remember { Animatable(0f) }
     val outerRing = remember { Animatable(0f) }
     val innerRing = remember { Animatable(0f) }
@@ -119,9 +128,9 @@ fun SignalXSplash(onFinished: () -> Unit) {
         onFinished()
     }
 
-    val title = remember {
+    val title = remember(isDark) {
         buildAnnotatedString {
-            withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Medium)) { append("Signal") }
+            withStyle(SpanStyle(color = titleBase, fontWeight = FontWeight.Medium)) { append("Signal") }
             withStyle(SpanStyle(color = Color(0xFF3FB4FF), fontWeight = FontWeight.ExtraBold)) { append("X") }
             withStyle(
                 SpanStyle(

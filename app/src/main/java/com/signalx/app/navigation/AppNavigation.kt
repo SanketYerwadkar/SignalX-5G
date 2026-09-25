@@ -91,7 +91,7 @@ fun AppNavigation(vm: MainViewModel, versionName: String) {
     ) { padding ->
         NavHost(nav, startDestination = Routes.SPLASH, modifier = Modifier.padding(padding)) {
             composable(Routes.SPLASH) {
-                SplashScreen {
+                SplashScreen(themeMode = settings.themeMode) {
                     nav.navigate(Routes.HOME) { popUpTo(Routes.SPLASH) { inclusive = true } }
                 }
             }
