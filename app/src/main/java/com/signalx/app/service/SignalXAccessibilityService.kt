@@ -630,14 +630,27 @@ class SignalXAccessibilityService : AccessibilityService() {
         if (currentStep4G == Step4G.DONE) return
         currentStep4G = Step4G.DONE
         isAutomating = false
-        
-        performGlobalAction(GLOBAL_ACTION_BACK)
-        
+
         val msg = "✓ Network set to 4G!"
         AutomationEvents.notifySuccess(msg)
+
+        // Press back 3 times to unwind: dialog → SIM info → Mobile network → dashboard
+        performGlobalAction(GLOBAL_ACTION_BACK)
+        mainHandler.postDelayed({ performGlobalAction(GLOBAL_ACTION_BACK) }, 350)
+        mainHandler.postDelayed({ performGlobalAction(GLOBAL_ACTION_BACK) }, 700)
+
+        // Explicitly bring SignalX back to the foreground as a guaranteed return
+        mainHandler.postDelayed({
+            try {
+                val launchIntent = packageManager.getLaunchIntentForPackage("com.signalx.app")
+                    ?.apply { addFlags(android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT) }
+                launchIntent?.let { startActivity(it) }
+            } catch (_: Exception) {}
+        }, 1100)
+
         mainHandler.postDelayed({
             try { Toast.makeText(applicationContext, msg, Toast.LENGTH_LONG).show() } catch (_: Exception) {}
-        }, 500)
+        }, 1300)
     }
 
     /**
