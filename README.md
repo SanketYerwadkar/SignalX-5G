@@ -72,14 +72,41 @@ SignalX⁵ᴳ solves this gracefully for standard consumer devices:
    git clone https://github.com/SanketYerwadkar/signalx-5g.git
    cd signalx-5g
    ```
-2. Build the debug APK:
+
+2. Build the debug APK only:
    ```bash
+   # Linux / macOS
    ./gradlew assembleDebug
+
+   # Windows
+   .\gradlew assembleDebug
    ```
-3. Install to your connected device:
+   Output: `app/build/outputs/apk/debug/app-debug.apk`
+
+3. Install to your connected device (USB debugging must be enabled):
    ```bash
    adb install -r app/build/outputs/apk/debug/app-debug.apk
    ```
+
+4. **Build + Install in one step** (recommended during development):
+   ```bash
+   # Linux / macOS
+   ./gradlew installDebug
+
+   # Windows
+   .\gradlew installDebug
+   ```
+
+5. **Build + Install + Launch** (fastest dev loop):
+   ```bash
+   # Linux / macOS
+   ./gradlew installDebug && adb shell monkey -p com.signalx.app -c android.intent.category.LAUNCHER 1
+
+   # Windows
+   .\gradlew installDebug; adb shell monkey -p com.signalx.app -c android.intent.category.LAUNCHER 1
+   ```
+
+> **Tip:** Run `adb devices` first to confirm your device is detected before installing.
 
 ---
 
