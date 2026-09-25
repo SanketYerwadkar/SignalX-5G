@@ -104,58 +104,57 @@ fun SpeedTestScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "SPEED\nTEST",
+            text = "SPEED TEST",
             color = sx.textPrimary,
-            fontSize = 26.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 3.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = 30.sp
+            textAlign = TextAlign.Center
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
 
-        Row(
+        // Speedometer — full width, square
+        SpeedometerGauge(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Speedometer
-            SpeedometerGauge(
-                modifier = Modifier
-                    .weight(0.55f)
-                    .aspectRatio(1f),
-                speed = liveSpeed.value,
-                ping = result.ping,
-                phase = phase
-            )
+                .aspectRatio(1f),
+            speed = liveSpeed.value,
+            ping = result.ping,
+            phase = phase
+        )
 
-            // Stat cards
-            Column(
-                modifier = Modifier.weight(0.45f),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                SpeedCard(
-                    label = "Download",
-                    value = result.download,
-                    unit = "Mbps",
-                    iconChar = "↑",
-                    active = phase == Phase.DOWNLOAD
-                )
-                SpeedCard(
-                    label = "Upload",
-                    value = result.upload,
-                    unit = "Mbps",
-                    iconChar = "↓",
-                    active = phase == Phase.UPLOAD
-                )
-                PingCard(ping = result.ping, active = phase == Phase.PING)
-            }
+        Spacer(Modifier.height(16.dp))
+
+        // Three result cards side by side
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            SpeedCard(
+                label = "Download",
+                value = result.download,
+                unit = "Mbps",
+                iconChar = "↓",
+                active = phase == Phase.DOWNLOAD,
+                modifier = Modifier.weight(1f)
+            )
+            SpeedCard(
+                label = "Upload",
+                value = result.upload,
+                unit = "Mbps",
+                iconChar = "↑",
+                active = phase == Phase.UPLOAD,
+                modifier = Modifier.weight(1f)
+            )
+            PingCard(
+                ping = result.ping,
+                active = phase == Phase.PING,
+                modifier = Modifier.weight(1f)
+            )
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
 
         // Phase label
         val statusText = when (phase) {
@@ -173,9 +172,8 @@ fun SpeedTestScreen() {
                 fontSize = 12.sp,
                 letterSpacing = 0.5.sp
             )
+            Spacer(Modifier.height(10.dp))
         }
-
-        Spacer(Modifier.height(14.dp))
 
         // Start / restart button
         Box(
@@ -327,14 +325,15 @@ private fun SpeedCard(
     value: Double?,
     unit: String,
     iconChar: String,
-    active: Boolean
+    active: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val sx = SignalX.colors
     Surface(
         color = sx.surface,
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 0.dp,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -370,13 +369,13 @@ private fun SpeedCard(
 }
 
 @Composable
-private fun PingCard(ping: Double?, active: Boolean) {
+private fun PingCard(ping: Double?, active: Boolean, modifier: Modifier = Modifier) {
     val sx = SignalX.colors
     Surface(
         color = sx.surface,
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 0.dp,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
