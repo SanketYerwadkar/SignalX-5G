@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -37,24 +38,27 @@ import com.signalx.app.presentation.dashboard.DashboardScreen
 import com.signalx.app.presentation.network.NetworkDetailsScreen
 import com.signalx.app.presentation.settings.SettingsScreen
 import com.signalx.app.presentation.splash.SplashScreen
+import com.signalx.app.presentation.speedtest.SpeedTestScreen
 import com.signalx.app.utils.SettingsIntents
 
 object Routes {
-    const val SPLASH = "splash"
-    const val HOME = "home"
-    const val NETWORK = "network"
-    const val SETTINGS = "settings"
-    const val ABOUT = "about"
-    const val PRIVACY = "privacy"
-    const val LICENSES = "licenses"
+    const val SPLASH     = "splash"
+    const val HOME       = "home"
+    const val SPEED_TEST = "speedtest"
+    const val NETWORK    = "network"
+    const val SETTINGS   = "settings"
+    const val ABOUT      = "about"
+    const val PRIVACY    = "privacy"
+    const val LICENSES   = "licenses"
 }
 
 private data class Tab(val route: String, val label: String, val icon: ImageVector)
 
 private val tabs = listOf(
-    Tab(Routes.HOME, "Home", Icons.Default.Home),
-    Tab(Routes.NETWORK, "Network", Icons.Default.List),
-    Tab(Routes.SETTINGS, "Settings", Icons.Default.Settings)
+    Tab(Routes.HOME,       "Home",       Icons.Default.Home),
+    Tab(Routes.SPEED_TEST, "Speed Test", Icons.Default.NetworkCheck),
+    Tab(Routes.NETWORK,    "Network",    Icons.Default.List),
+    Tab(Routes.SETTINGS,   "Settings",   Icons.Default.Settings)
 )
 
 @Composable
@@ -309,6 +313,9 @@ fun AppNavigation(vm: MainViewModel, versionName: String) {
                         }
                     )
                 }
+            }
+            composable(Routes.SPEED_TEST) {
+                SpeedTestScreen()
             }
             composable(Routes.NETWORK) {
                 NetworkDetailsScreen(network, vm::selectSim, vm::refresh)
