@@ -55,42 +55,48 @@ fun SpeedTestScreen() {
         phase = Phase.PING
         result = SpeedResult()
         scope.launch {
-            try {
-                liveSpeed.snapTo(0f)
+            liveSpeed.snapTo(0f)
 
-                // 1. Ping
-                val ping = withContext(Dispatchers.IO) { measurePing() }
-                result = result.copy(ping = ping)
+            // 1. Ping — non-fatal, test continues even if this fails
+            val ping = try {
+                withContext(Dispatchers.IO) { measurePing() }
+            } catch (_: Exception) { null }
+            result = result.copy(ping = ping)
 
-                // 2. Download
-                phase = Phase.DOWNLOAD
-                val dl = withContext(Dispatchers.IO) {
+            // 2. Download
+            phase = Phase.DOWNLOAD
+            val dl = try {
+                withContext(Dispatchers.IO) {
                     measureDownload { spd ->
                         scope.launch(Dispatchers.Main) {
-                            liveSpeed.animateTo(spd.toFloat(), tween(250, easing = LinearEasing))
+                            liveSpeed.animateTo(spd.toFloat(), tween(300, easing = LinearEasing))
                         }
                     }
                 }
-                result = result.copy(download = dl)
-                liveSpeed.animateTo(0f, tween(450))
+            } catch (_: Exception) { null }
+            result = result.copy(download = dl)
+            // Hold the final download reading for a moment before sweeping back
+            delay(800)
+            liveSpeed.animateTo(0f, tween(600))
+            delay(300)
 
-                // 3. Upload
-                phase = Phase.UPLOAD
-                val ul = withContext(Dispatchers.IO) {
+            // 3. Upload
+            phase = Phase.UPLOAD
+            val ul = try {
+                withContext(Dispatchers.IO) {
                     measureUpload { spd ->
                         scope.launch(Dispatchers.Main) {
-                            liveSpeed.animateTo(spd.toFloat(), tween(250, easing = LinearEasing))
+                            liveSpeed.animateTo(spd.toFloat(), tween(300, easing = LinearEasing))
                         }
                     }
                 }
-                result = result.copy(upload = ul)
-                liveSpeed.animateTo(0f, tween(450))
+            } catch (_: Exception) { null }
+            result = result.copy(upload = ul)
+            // Hold the final upload reading before sweeping back
+            delay(800)
+            liveSpeed.animateTo(0f, tween(600))
 
-                phase = Phase.DONE
-            } catch (_: Exception) {
-                liveSpeed.animateTo(0f, tween(300))
-                phase = Phase.ERROR
-            }
+            phase = if (dl != null || ul != null) Phase.DONE else Phase.ERROR
         }
     }
 
@@ -408,25 +414,31 @@ private fun PingCard(ping: Double?, active: Boolean, modifier: Modifier = Modifi
 // ─── Network measurement ──────────────────────────────────────────────────────
 
 private fun measurePing(): Double {
-    val samples = LongArray(5)
-    for (i in samples.indices) {
+    // Use named HTTPS endpoints — bare IPs fail Android SSL hostname verification
+    val endpoints = listOf(
+        "https://cloudflare.com",
+        "https://www.google.com",
+        "https://speed.cloudflare.com"
+    )
+    val samples = mutableListOf<Long>()
+    repeat(5) { i ->
         val t0 = System.currentTimeMillis()
         try {
-            val conn = URL("https://1.1.1.1").openConnection() as HttpURLConnection
+            val conn = URL(endpoints[i % endpoints.size]).openConnection() as HttpURLConnection
             conn.requestMethod = "HEAD"
             conn.connectTimeout = 5_000
-            conn.readTimeout = 5_000
+            conn.readTimeout   = 5_000
             conn.instanceFollowRedirects = false
             conn.connect()
             conn.responseCode
-            samples[i] = System.currentTimeMillis() - t0
+            samples += System.currentTimeMillis() - t0
             conn.disconnect()
-        } catch (_: Exception) {
-            samples[i] = 9_999L
-        }
-        Thread.sleep(100)
+        } catch (_: Exception) { /* skip failed sample */ }
+        Thread.sleep(80)
     }
-    return samples.sorted().drop(1).dropLast(1).average()
+    if (samples.isEmpty()) throw Exception("All ping samples failed")
+    val sorted = samples.sorted()
+    return if (sorted.size >= 3) sorted.drop(1).dropLast(1).average() else sorted.average()
 }
 
 private fun measureDownload(onProgress: (Double) -> Unit): Double {
