@@ -163,7 +163,8 @@ fun SignalXSplash(themeMode: ThemeMode = ThemeMode.DARK, onFinished: () -> Unit)
                 strokeA = { strokeA.value },
                 strokeB = { strokeB.value },
                 badge = { badge.value },
-                ripple = { ripple.value }
+                ripple = { ripple.value },
+                backgroundColor = Bg
             )
             Spacer(Modifier.height(16.dp))
             Text(
@@ -197,6 +198,7 @@ private fun SignalXAnimatedMark(
     strokeB: () -> Float,
     badge: () -> Float,
     ripple: () -> Float,
+    backgroundColor: Color = Color(0xFF05070A),
     modifier: Modifier = Modifier
 ) {
     val markSize = 260.dp
@@ -305,7 +307,7 @@ private fun SignalXAnimatedMark(
                     scaleY = b
                     alpha = b.coerceIn(0f, 1f)
                 }
-                .background(Bg, CircleShape)
+                .background(backgroundColor, CircleShape)
                 .padding((8f * k).dp)
                 .background(
                     Brush.linearGradient(listOf(Color(0xFF00F5DA), Color(0xFF00B4E6))),
