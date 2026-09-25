@@ -46,7 +46,15 @@ class SignalXAccessibilityService : AccessibilityService() {
             return
         }
 
+        // Ignore events fired before the target screen has had time to open
+        if (System.currentTimeMillis() - autoStartTime < 800) return
+
         val root = rootInActiveWindow ?: return
+
+        // Never act on events from the SignalX app itself — that would scroll/click our own dashboard
+        val activePackage = root.packageName?.toString() ?: ""
+        if (activePackage == "com.signalx.app") return
+
         val allRoots = getAllCandidateRoots(root)
 
         // 1. If the "Phone 0 / Phone 1" popup is open anywhere on screen, dismiss it by tapping Phone 0
