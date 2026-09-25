@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
             val vm: MainViewModel = viewModel(factory = object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    MainViewModel(MockNetworkRepository()) as T
+                    MainViewModel(application, MockNetworkRepository()) as T
             })
             val settings by vm.settings.collectAsStateWithLifecycle()
             SignalXTheme(mode = settings.themeMode) {
